@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="de.egi.geofence.geozone.plugin.tgm"
+    android:versionCode="109"
+    android:versionName="1.0.9" >
+
+    <uses-sdk
+        android:minSdkVersion="14"
+        android:targetSdkVersion="25" />
+
+    <!-- Keeps the processor from sleeping when a message is received. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <application
+        android:name=".TgmPluginApplication"
+        android:allowBackup="true"
+		android:installLocation="internalOnly"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
+        tools:ignore="GoogleAppIndexingWarning">
+        <activity
+            android:name="de.egi.geofence.geozone.plugin.tgm.TgmPluginMain"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="de.egi.geofence.geozone.GETPLUGINS"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="de.egi.geofence.geozone.plugin.tgm.Info" android:label="Info" android:theme="@style/Theme.AppCompat.Light.Dialog"/>
+
+        <activity android:name="de.egi.geofence.geozone.plugin.tgm.PhoneNumber" android:label="@string/title_phone" />
+
+        <activity android:name="de.egi.geofence.geozone.plugin.tgm.Code" android:label="@string/title_code" />
+
+        <activity android:name=".Debug" android:theme="@style/Theme.AppCompat.Light.Dialog" android:label="@string/action_debug"/>
+
+        <activity android:name=".Properties" android:label="@string/action_props"/>
+
+        <!--
+           WakefulBroadcastReceiver that will receive intents from EgiGeoZone
+           and hand them to the custom IntentService.
+         -->
+        <receiver android:name="de.egi.geofence.geozone.plugin.tgm.TgmBroadcastReceiverPlugin">
+            <intent-filter>
+                <action android:name="de.egi.geofence.geozone.plugin.EVENT" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name="de.egi.geofence.geozone.plugin.tgm.TgmBroadcastSendMessage">
+            <intent-filter>
+                <action android:name="de.egi.geofence.geozone.plugin.tgm.SENDMESSAGE" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name="de.egi.geofence.geozone.plugin.tgm.TgmPluginIntentService" >
+        </service>
+
+    </application>
+
+</manifest>

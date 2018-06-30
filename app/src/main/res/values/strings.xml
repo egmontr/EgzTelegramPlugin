@@ -1,0 +1,85 @@
+<!--
+	Copyright 2016 Egmont R. (egmontr@gmail.com)
+
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+-->
+<resources tools:ignore="MissingTranslation" xmlns:tools="http://schemas.android.com/tools">
+
+    <string-array name="debug_array">
+        <item>info</item>
+        <item>error</item>
+    </string-array>
+
+    <string name="app_name">EgiGeoZone Telegram Plugin</string>
+    <string name="settings">EgiGeoZone Telegram Plugin settings</string>
+    <string name="action_info">Info</string>
+    <string name="action_debug">Log level</string>
+    <string name="action_props">Properties</string>
+
+    <string name="info_title">Short description</string>
+    <string name="info">This App is a Telegram plugin for the EgiGeoZone app, which sends command messages to a bot. The bot is defined on the server side of Fhem, but it could be used also for other bots.</string>
+    <string name="disclaimer_title">Disclaimer - End User License Agreement</string>
+    <string name="disclaimer">THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\nA few of the icons are made by Freepik from www.flaticon.com</string>
+
+    <string name="hp">EgiGeoZone website:\n <a href="http://www.egigeozone.de">http://www.egigeozone.de</a></string>
+    <string name="forum">EgiGeoZone forum:\n <a href="http://rpi.spdns.eu/egigeozone/">http://rpi.spdns.eu/egigeozone/</a></string>
+
+    <string name="title">Telegram Plugin settings</string>
+    <string name="aswitch">Activate Plugin</string>
+
+    <string name="props">Saved values</string>
+    <string name="props_bname">Bot username</string>
+    <string name="props_fname">First name</string>
+    <string name="props_lname">Last name</string>
+    <string name="props_phone">Phone number</string>
+    <string name="props_bot_id">Bot ID</string>
+    <string name="props_code">Last entered code</string>
+
+    <string name="auth">Authorization</string>
+    <string name="text_code">Enter your code</string>
+    <string name="text_fname">Enter your first name</string>
+    <string name="text_lname">Enter your last name</string>
+    <string name="text_bname">Enter your bot username (from FHEM or other)</string>
+    <string name="hint_bname">EgzTgmTestBot</string>
+    <string name="ok">OK</string>
+    <string name="state">state</string>
+    <string name="zname">Zone name</string>
+    <string name="command">Command</string>
+    <string name="test_command">Send fake test message (from first entry)</string>
+    <string name="login">Login</string>
+    <string name="logoff">Logoff</string>
+    <string name="tgm">Telegram</string>
+    <string name="phone">Enter your phone number</string>
+    <string name="hint_phone">+491117770888</string>
+    <string name="desc_phone">Enter your phone number and wait for confirmation code</string>
+
+    <string name="please_login">Please login</string>
+    <string name="wrong_bot">The bot user name was not recognized. Please log off and log in again with the correct bot username.</string>
+
+    <string name="title_phone">Phone number</string>
+    <string name="title_code">Code</string>
+
+    <string name="notifyResponse">Do not show notification (reponse from Bot)</string>
+
+    <string name="geofence_transition_entered">entered</string>
+    <string name="geofence_transition_exited">exited</string>
+
+
+        <string name="alertPermissions">From Android 6 you have to enable App permissions under settings (Settings \u279d Apps \u279d EgiGeoZone \u279d Permissions). After that start again.
+        \n\n
+        The following permissions are needed:\n\n
+        Write permission (Storage): This app writes a log file.\n\n
+    </string>
+    <string name="titleAlertPermissions">Enable permissions for App</string>
+
+</resources>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_tab_selected">#ff74c8ff</color>
+    <color name="bg_command">#ffe2f2fd</color>
+</resources>

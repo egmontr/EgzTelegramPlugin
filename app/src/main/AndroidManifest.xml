@@ -3,11 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="de.egi.geofence.geozone.plugin.tgm"
     android:versionCode="109"
-    android:versionName="1.0.9" >
-
-    <uses-sdk
-        android:minSdkVersion="14"
-        android:targetSdkVersion="25" />
+    android:versionName="1.0.9">
 
     <!-- Keeps the processor from sleeping when a message is received. -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />

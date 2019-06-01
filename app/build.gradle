@@ -4,6 +4,9 @@ android {
     compileSdkVersion 27
 
     defaultConfig {
+        applicationId "de.egi.geofence.geozone.plugin.tgm"
+        minSdkVersion(14)
+        targetSdkVersion(25)
     }
 
     buildTypes {

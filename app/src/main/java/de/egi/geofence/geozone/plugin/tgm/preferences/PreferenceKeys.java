@@ -17,8 +17,6 @@
 package de.egi.geofence.geozone.plugin.tgm.preferences;
 
 public class PreferenceKeys {
-    public final static String USER_FIRST_NAME = "user_first_name";
-    public final static String USER_LAST_NAME = "user_last_name";
     public final static String PHONE_NUMBER = "phone_number";
     public static final String MY_ID = "myid";
     public final static String LOG_LEVEL = "log_level";

@@ -27,10 +27,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SwitchCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -43,7 +41,17 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import org.apache.log4j.Level;
+import org.drinkless.td.libcore.telegram.Client;
 import org.drinkless.td.libcore.telegram.TdApi;
 
 import java.text.DateFormat;
@@ -86,11 +94,11 @@ public class TgmPluginMain extends AppCompatActivity implements TextWatcher, Com
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if ("de.egi.geofence.geozone.plugin.tgm.AUTHSTATEOK".equals(action)) {
+            if (ampel != null && "de.egi.geofence.geozone.plugin.tgm.AUTHSTATEOK".equals(action)) {
                 // Set semaphore to green
                 ampel.setImageResource(R.drawable.ic_lens_green_24dp);
             }
-            if ("de.egi.geofence.geozone.plugin.tgm.AUTHSTATENOK".equals(action)) {
+            if (ampel != null &&  "de.egi.geofence.geozone.plugin.tgm.AUTHSTATENOK".equals(action)) {
                 ampel.setImageResource(R.drawable.ic_lens_red_24dp);
             }
         }
@@ -104,7 +112,7 @@ public class TgmPluginMain extends AppCompatActivity implements TextWatcher, Com
 
         if (!checkAllNeededPermissions()){
             // Display UI and wait for user interaction
-            android.support.v7.app.AlertDialog.Builder alertDialogBuilder = new android.support.v7.app.AlertDialog.Builder(this);
+            androidx.appcompat.app.AlertDialog.Builder alertDialogBuilder = new androidx.appcompat.app.AlertDialog.Builder(this);
             alertDialogBuilder.setMessage(getString(R.string.alertPermissions));
             alertDialogBuilder.setTitle(getString(R.string.titleAlertPermissions));
 
@@ -122,17 +130,25 @@ public class TgmPluginMain extends AppCompatActivity implements TextWatcher, Com
                     finish();
                 }
             });
-            android.support.v7.app.AlertDialog alertDialog = alertDialogBuilder.create();
+            androidx.appcompat.app.AlertDialog alertDialog = alertDialogBuilder.create();
             alertDialog.show();
             return;
         }
 
         IntentFilter filter1 = new IntentFilter("de.egi.geofence.geozone.plugin.tgm.AUTHSTATEOK");
-        this.registerReceiver(mReceiver, filter1);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            this.registerReceiver(mReceiver, filter1, RECEIVER_NOT_EXPORTED);
+        }else {
+            this.registerReceiver(mReceiver, filter1);
+        }
         IntentFilter filter2 = new IntentFilter("de.egi.geofence.geozone.plugin.tgm.AUTHSTATENOK");
-        this.registerReceiver(mReceiver, filter2);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            this.registerReceiver(mReceiver, filter2, RECEIVER_NOT_EXPORTED);
+        }else {
+            this.registerReceiver(mReceiver, filter2);
+        }
 
-        ampel = ((ImageView) this.findViewById(R.id.tracking_service_state));
+        ampel = this.findViewById(R.id.tracking_service_state);
 
         SharedPreferences mPrefs = getSharedPreferences(SHARED_PREFERENCE_NAME, MODE_PRIVATE);
         editor = mPrefs.edit();
@@ -140,27 +156,27 @@ public class TgmPluginMain extends AppCompatActivity implements TextWatcher, Com
 
         tpa = ((TgmPluginApplication) getApplication());
 
-        toggle = (ToggleButton) this.findViewById(R.id.toggleButton);
+        toggle = this.findViewById(R.id.toggleButton);
 
-        notifyResponse = (SwitchCompat) this.findViewById(R.id.notifyResponse);
+        notifyResponse = this.findViewById(R.id.notifyResponse);
 
-        z1 = (EditText) this.findViewById(R.id.editZone1);
-        z2 = (EditText) this.findViewById(R.id.editZone2);
-        z3 = (EditText) this.findViewById(R.id.editZone3);
-        z4 = (EditText) this.findViewById(R.id.editZone4);
-        z5 = (EditText) this.findViewById(R.id.editZone5);
-        z6 = (EditText) this.findViewById(R.id.editZone6);
+        z1 = this.findViewById(R.id.editZone1);
+        z2 = this.findViewById(R.id.editZone2);
+        z3 = this.findViewById(R.id.editZone3);
+        z4 = this.findViewById(R.id.editZone4);
+        z5 = this.findViewById(R.id.editZone5);
+        z6 = this.findViewById(R.id.editZone6);
 
-        c1 = (EditText) this.findViewById(R.id.editCommand1);
-        c2 = (EditText) this.findViewById(R.id.editCommand2);
-        c3 = (EditText) this.findViewById(R.id.editCommand3);
-        c4 = (EditText) this.findViewById(R.id.editCommand4);
-        c5 = (EditText) this.findViewById(R.id.editCommand5);
-        c6 = (EditText) this.findViewById(R.id.editCommand6);
+        c1 = this.findViewById(R.id.editCommand1);
+        c2 = this.findViewById(R.id.editCommand2);
+        c3 = this.findViewById(R.id.editCommand3);
+        c4 = this.findViewById(R.id.editCommand4);
+        c5 = this.findViewById(R.id.editCommand5);
+        c6 = this.findViewById(R.id.editCommand6);
 
-        Button send = (Button) this.findViewById(R.id.sendTestMessage);
-        Button logoff = (Button) this.findViewById(R.id.logoff);
-        Button login = (Button) this.findViewById(R.id.login);
+        Button send = this.findViewById(R.id.sendTestMessage);
+        Button logoff = this.findViewById(R.id.logoff);
+        Button login = this.findViewById(R.id.login);
 
         z1.addTextChangedListener(this);
         z2.addTextChangedListener(this);
@@ -242,7 +258,7 @@ public class TgmPluginMain extends AppCompatActivity implements TextWatcher, Com
         }
         if (id == R.id.action_debug) {
             Intent i4 = new Intent(this, Debug.class);
-            startActivityForResult(i4, 4712);
+            activityResultLaunch.launch(i4); // 4712
             return true;
         }
         if (id == R.id.action_props) {
@@ -253,33 +269,54 @@ public class TgmPluginMain extends AppCompatActivity implements TextWatcher, Com
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        // Choose what to do based on the request code
-        switch (requestCode) {
-            // Debug Level setzen
-            case 4712 :
-                if (resultCode == RESULT_OK) {
-                    String level = intent.getStringExtra("level");
-                    TgmPluginApplication.logConfigurator.setRootLevel(Level.toLevel(level));
-                    TgmPluginApplication.logConfigurator.setLevel("de.egi.geofence.geozone", Level.toLevel(level));
-                    try{
-                        TgmPluginApplication.logConfigurator.configure();
-                    } catch (Exception e) {
-                        // Do nothing
+    ActivityResultLauncher<Intent> activityResultLaunch = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    // Debug
+                    if (result.getResultCode() == 4712) {
+                        String level = result.getData() != null ? result.getData().getStringExtra("level") : null;
+                        TgmPluginApplication.logConfigurator.setRootLevel(Level.toLevel(level));
+                        TgmPluginApplication.logConfigurator.setLevel("de.egi.geofence.geozone.plugin.tgm", Level.toLevel(level));
+                        try {
+                            TgmPluginApplication.logConfigurator.configure();
+                        } catch (Exception e) {
+                            // Do nothing
+                        }
+                        editor.putString(PreferenceKeys.LOG_LEVEL, level);
+                        editor.apply();
+                        // Show Alert
+                        Toast.makeText(getApplicationContext(), " Level : " + level, Toast.LENGTH_LONG).show();
                     }
-                    editor.putString(PreferenceKeys.LOG_LEVEL, level);
-                    editor.apply();
-                    // Show Alert
-                    Toast.makeText(this, " Level : " + level , Toast.LENGTH_LONG).show();
                 }
-                break;
-            // If any other request code was received
-            default:
-                // Report that this Activity received an unknown requestCode
-                break;
-        }
-    }
+            });
+
+
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+//        // Choose what to do based on the request code
+//        super.onActivityResult(requestCode, resultCode, intent);
+//        // Debug Level setzen
+//        // Report that this Activity received an unknown requestCode
+//        if (requestCode == 4712) {
+//            if (resultCode == RESULT_OK) {
+//                String level = intent.getStringExtra("level");
+//                TgmPluginApplication.logConfigurator.setRootLevel(Level.toLevel(level));
+//                TgmPluginApplication.logConfigurator.setLevel("de.egi.geofence.geozone.plugin.tgm", Level.toLevel(level));
+//                try {
+//                    TgmPluginApplication.logConfigurator.configure();
+//                } catch (Exception e) {
+//                    // Do nothing
+//                }
+//                editor.putString(PreferenceKeys.LOG_LEVEL, level);
+//                editor.apply();
+//                // Show Alert
+//                Toast.makeText(this, " Level : " + level, Toast.LENGTH_LONG).show();
+//            }
+//            // If any other request code was received
+//        }
+//    }
 
 
     @Override
@@ -334,85 +371,69 @@ public class TgmPluginMain extends AppCompatActivity implements TextWatcher, Com
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (buttonView == toggle) {
-            if (isChecked) {
-                editor.putBoolean(PreferenceKeys.SWITCH, true);
-            } else {
-                editor.putBoolean(PreferenceKeys.SWITCH, false);
-            }
+            editor.putBoolean(PreferenceKeys.SWITCH, isChecked);
         }
         if (buttonView == notifyResponse) {
-            if (isChecked) {
-                editor.putBoolean(PreferenceKeys.NONOTIFYRESPONSE, true);
-            } else {
-                editor.putBoolean(PreferenceKeys.NONOTIFYRESPONSE, false);
-            }
+            editor.putBoolean(PreferenceKeys.NONOTIFYRESPONSE, isChecked);
         }
         editor.apply();
     }
 
+    @SuppressLint("UnspecifiedImmutableFlag")
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.logoff:
-                tpa.sendFunction(new TdApi.ResetAuth(), tpa);
+        int id = view.getId();
+        if (id == R.id.logoff) {// @new
+            tpa.sendFunction(new TdApi.LogOut(), tpa);
+        } else if (id == R.id.login) {
+            TgmPluginApplication.setClient(Client.create(tpa, null, null)); // recreate client after previous has closed
+        } else if (id == R.id.sendTestMessage) {
+            String command = c1.getText().toString();
+            command = Utils.replaceVar(command, TgmBroadcastReceiverPlugin.ZONE, z1.getText().toString());
+            command = Utils.replaceVar(command, TgmBroadcastReceiverPlugin.TRANSITION, getString(R.string.geofence_transition_entered));
+            command = Utils.replaceVar(command, TgmBroadcastReceiverPlugin.TRANSITIONTYPE, "1");
+            command = Utils.replaceVar(command, TgmBroadcastReceiverPlugin.LAT, "48");
+            command = Utils.replaceVar(command, TgmBroadcastReceiverPlugin.LNG, "11");
+            command = Utils.replaceVar(command, TgmBroadcastReceiverPlugin.DEVICEID, "FFAA");
 
-                editor.putLong(PreferenceKeys.BOT_ID, 0);
-                editor.putString(PreferenceKeys.CODE, "");
-                editor.apply();
+            TimeZone tz1 = TimeZone.getDefault();
+            DateFormat df1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
+            df.setTimeZone(tz1);
+            String nowAsLocal = df1.format(new Date());
 
-                break;
-            case R.id.login:
-                tpa.sendFunction(new TdApi.GetAuthState(), tpa);
-                break;
-            case R.id.sendTestMessage:
-                String command = c1.getText().toString();
-                command = Utils.replaceVar(command, TgmPluginIntentService.ZONE, z1.getText().toString());
-                command = Utils.replaceVar(command, TgmPluginIntentService.TRANSITION, getString(R.string.geofence_transition_entered));
-                command = Utils.replaceVar(command, TgmPluginIntentService.TRANSITIONTYPE, "1");
-                command = Utils.replaceVar(command, TgmPluginIntentService.LAT, "48");
-                command = Utils.replaceVar(command, TgmPluginIntentService.LNG, "11");
-                command = Utils.replaceVar(command, TgmPluginIntentService.DEVICEID, "FFAA");
+            command = Utils.replaceVar(command, TgmBroadcastReceiverPlugin.DATE, nowAsLocal);
 
-                TimeZone tz1 = TimeZone.getDefault();
-                DateFormat df1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
-                DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
-                df.setTimeZone(tz1);
-                String nowAsLocal = df1.format(new Date());
+            SharedPreferences mPrefs = getSharedPreferences(TgmPluginMain.SHARED_PREFERENCE_NAME, MODE_PRIVATE);
+            chatBotId = mPrefs.getLong(PreferenceKeys.BOT_ID, 0);
 
-                command = Utils.replaceVar(command, TgmPluginIntentService.DATE, nowAsLocal);
-
-                SharedPreferences mPrefs = getSharedPreferences(TgmPluginMain.SHARED_PREFERENCE_NAME, MODE_PRIVATE);
-                chatBotId = mPrefs.getLong(PreferenceKeys.BOT_ID, 0);
-
-                if (chatBotId == 0){
-                    int notifyId = 201;
-                    Intent openIntent = new Intent(this, TgmPluginMain.class);
-                    openIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    PendingIntent pendingIntent = PendingIntent.getActivity(this, notifyId, openIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                    NotificationUtil.notify(this,
-                            notifyId,
-                            pendingIntent,
-                            "Error: EgzTgmPlugin",
-                            getString(R.string.wrong_bot), "",
-                            false, false, R.drawable.ic_dove_white_1);
-
-                    // Show Alert
-                    Toast.makeText(this, getString(R.string.wrong_bot), Toast.LENGTH_LONG).show();
-
-                    break;
+            if (chatBotId == 0) {
+                int notifyId = 201;
+                Intent openIntent = new Intent(this, TgmPluginMain.class);
+                openIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                PendingIntent pendingIntent;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    pendingIntent = PendingIntent.getActivity(this, notifyId, openIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+                } else {
+                    pendingIntent = PendingIntent.getActivity(this, notifyId, openIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 }
+                NotificationUtil.notify(this,
+                        notifyId,
+                        pendingIntent,
+                        "Error: EgzTgmPlugin",
+                        getString(R.string.wrong_bot), "",
+                        false, false, R.drawable.ic_dove_white_1);
 
-                GlobalSingleton.getInstance().setChatBotId(chatBotId);
+                // Show Alert
+                Toast.makeText(this, getString(R.string.wrong_bot), Toast.LENGTH_LONG).show();
 
-                // Save command to globals
-                GlobalSingleton.getInstance().setCommand(command);
-
-//                tpa.sendMessage(chatBotId, new TdApi.InputMessageText(command, true, true, null, null), tpa);
-
-                // Get AuthState and den Broadcast to send message
-                tpa.sendFunction(new TdApi.GetAuthState(), tpa);
-
-                break;
+                return;
+            }
+            GlobalSingleton.getInstance().setChatBotId(chatBotId);
+            // Save command to globals
+            GlobalSingleton.getInstance().setCommand(command);
+            // Get AuthState and den Broadcast to send message
+            tpa.sendFunction(new TdApi.GetAuthorizationState(), tpa);
         }
     }
 
@@ -421,7 +442,7 @@ public class TgmPluginMain extends AppCompatActivity implements TextWatcher, Com
         super.onPause();
         try {
             this.unregisterReceiver(mReceiver);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 
@@ -429,16 +450,26 @@ public class TgmPluginMain extends AppCompatActivity implements TextWatcher, Com
     protected void onResume() {
         super.onResume();
         IntentFilter filter1 = new IntentFilter("de.egi.geofence.geozone.plugin.tgm.AUTHSTATEOK");
-        this.registerReceiver(mReceiver, filter1);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            this.registerReceiver(mReceiver, filter1, RECEIVER_NOT_EXPORTED);
+        }else {
+            this.registerReceiver(mReceiver, filter1);
+        }
+
         IntentFilter filter2 = new IntentFilter("de.egi.geofence.geozone.plugin.tgm.AUTHSTATENOK");
-        this.registerReceiver(mReceiver, filter2);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            this.registerReceiver(mReceiver, filter2, RECEIVER_NOT_EXPORTED);
+        }else {
+            this.registerReceiver(mReceiver, filter2);
+        }
+
     }
 
     // Check for all needed permissions
     public boolean checkAllNeededPermissions(){
-        int result = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (result != PackageManager.PERMISSION_GRANTED){
-            return false;
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+                int result = ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                return result == PackageManager.PERMISSION_GRANTED;
         }
         return true;
     }

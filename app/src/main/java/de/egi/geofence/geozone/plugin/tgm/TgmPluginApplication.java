@@ -24,13 +24,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Environment;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
+
+import androidx.core.content.ContextCompat;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.drinkless.td.libcore.telegram.Client;
-import org.drinkless.td.libcore.telegram.TG;
 import org.drinkless.td.libcore.telegram.TdApi;
 
 import java.io.File;
@@ -42,15 +42,30 @@ import de.mindpipe.android.logging.log4j.LogConfigurator;
 // https://vk.com/topic-55882680_31509731
 
 public class TgmPluginApplication extends Application implements Client.ResultHandler{
-    private Client client;
+
+    private static Client client;
     private final static String LOG_TAG = "TgmPluginApplication";
     private boolean boolGetAuthState = true;
+    private boolean boolSendNow = false;
     final static LogConfigurator logConfigurator = new LogConfigurator();
     private Logger log;
-//    private final static String level = "ERROR";
     private static final String SHARED_PREFERENCE_NAME = TgmPluginMain.class.getSimpleName();
     private SharedPreferences mPrefs;
     private SharedPreferences.Editor editor;
+
+    // #####
+    private static final String newLine = System.getProperty("line.separator");
+
+    private static TdApi.AuthorizationState authorizationState = null;
+
+    private static void print(String str) {
+        System.out.println("");
+        System.out.println(str);
+    }
+
+    public static void setClient(Client client) {
+        TgmPluginApplication.client = client;
+    }
 
     @SuppressLint("CommitPrefEdits")
     @Override
@@ -62,16 +77,16 @@ public class TgmPluginApplication extends Application implements Client.ResultHa
         editor.apply();
 
         String level = mPrefs.getString(PreferenceKeys.LOG_LEVEL, "ERROR");
-        if (level == null || level.equalsIgnoreCase("")){
+        if (level.equalsIgnoreCase("")){
             level = Level.ERROR.toString();
         }
         log = Logger.getLogger(TgmPluginApplication.class);
         if (logConfigurator.getFileName().equalsIgnoreCase("android-log4j.log")){
-            logConfigurator.setFileName(Environment.getExternalStorageDirectory() + File.separator + "tgmplugin" + File.separator + "tgmplugin.log");
+            logConfigurator.setFileName(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + "tgmplugin" + File.separator + "tgmplugin.log");
             logConfigurator.setUseFileAppender(true);
             logConfigurator.setRootLevel(Level.toLevel(level));
             // Set log level of a specific logger
-            logConfigurator.setLevel("de.egi.geofence.geozone", Level.toLevel(level));
+            logConfigurator.setLevel("de.egi.geofence.geozone.plugin.tgm", Level.toLevel(level));
             try {
                 logConfigurator.configure();
                 info("Logger set!");
@@ -86,8 +101,7 @@ public class TgmPluginApplication extends Application implements Client.ResultHa
     private void startTelegramApi() {
         info("startTelegramApi");
 
-        File f = null;
-        String path;
+        File f;
         try {
             final PackageManager packageManager = getPackageManager();
             f = new File(packageManager
@@ -100,37 +114,32 @@ public class TgmPluginApplication extends Application implements Client.ResultHa
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-
-//        boolean tgInit= mPrefs.getBoolean(PreferenceKeys.TG_INIT, false);
-//        if (!tgInit) {
-            path = f.getAbsolutePath();
-            TG.setUpdatesHandler(this);
-            TG.setDir(path);
-
-//            editor.putBoolean(PreferenceKeys.TG_INIT, true);
-//            editor.apply();
-//        }
-
         if (client == null) {
-            client = TG.getClientInstance();
+            client = Client.create(this, null, null);
         }
     }
 
 
+    @SuppressLint("UnspecifiedImmutableFlag")
     @Override
-    public void onResult(TdApi.TLObject object) {
+    public void onResult(TdApi.Object object) {
         info("onResult :" + object.toString());
 
         if (object instanceof TdApi.UpdateNewMessage) {
             TdApi.UpdateNewMessage newMessage = (TdApi.UpdateNewMessage) object;
             long chatBotId = mPrefs.getLong(PreferenceKeys.BOT_ID, 0);
-            if (newMessage.message.senderUserId == chatBotId) {
+            if (newMessage.message.chatId == chatBotId) {
                 TdApi.MessageText mt = (TdApi.MessageText) newMessage.message.content;
-                String msgResp = mt.text;
+                TdApi.FormattedText msgResp = mt.text;
                 int notifyId = 200;
                 Intent openIntent = new Intent(this, TgmPluginMain.class);
                 openIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                PendingIntent pendingIntent = PendingIntent.getActivity(this, notifyId, openIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent pendingIntent;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                    pendingIntent = PendingIntent.getActivity(this, notifyId, openIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+                }else{
+                    pendingIntent = PendingIntent.getActivity(this, notifyId, openIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                }
 
                 // Show notification only if requested
                 boolean nonotify = mPrefs.getBoolean(PreferenceKeys.NONOTIFYRESPONSE, false);
@@ -139,15 +148,34 @@ public class TgmPluginApplication extends Application implements Client.ResultHa
                             notifyId,
                             pendingIntent,
                             "EgzTgmPlugin",
-                            msgResp, "",
+                            msgResp.text, "",
                             false, false, R.drawable.ic_dove_2);
                 }
             }
+        // New
+        } else if (object instanceof TdApi.AuthorizationStateReady) {
+            // Broadcast AuthState OK to Main for green semaphore
+            // 1.
+            final Intent intent = new Intent("de.egi.geofence.geozone.plugin.tgm.AUTHSTATEOK");
+            sendBroadcast(intent);
+            sendFunction(new TdApi.GetChats(null,2000), this);
+            // Logged in
+            info("auth state OK :: login state: true");
+            editor.putBoolean(PreferenceKeys.LOGGEDSTATE, true);
+            editor.apply();
+
+            // Search for Bot
+//            sendFunction(new TdApi.SearchPublicChat(mPrefs.getString(PreferenceKeys.BOT_NAME, "")), this);
+
+            info("AuthStateOk");
+
+        } else if (object instanceof TdApi.UpdateAuthorizationState) {
+            onAuthorizationStateUpdated(((TdApi.UpdateAuthorizationState) object).authorizationState);
         } else if (object instanceof TdApi.User){
             TdApi.User user = (TdApi.User) object;
             if (mPrefs.getString(PreferenceKeys.PHONE_NUMBER, "").contains(user.phoneNumber)){
                 info("save my_id (user.id): " + user.id);
-                editor.putInt(PreferenceKeys.MY_ID, user.id);
+                editor.putInt(PreferenceKeys.MY_ID, (int) user.id);
                 editor.apply();
             }
         } else if (object instanceof TdApi.UpdateUser) {
@@ -157,14 +185,6 @@ public class TgmPluginApplication extends Application implements Client.ResultHa
                 editor.putLong(PreferenceKeys.BOT_ID, updateUser.user.id);
                 editor.apply();
             }
-        } else if (object instanceof TdApi.AuthStateWaitPhoneNumber){
-            Intent intent = new Intent(this, PhoneNumber.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-        }else if (object instanceof TdApi.AuthStateWaitCode) {
-            Intent intent = new Intent(this, Code.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
         }else if (object instanceof TdApi.UpdateOption) {
             TdApi.UpdateOption uo = (TdApi.UpdateOption) object;
             if (uo.name.equals("connection_state") && uo.value.equals("Ready")){
@@ -178,75 +198,58 @@ public class TgmPluginApplication extends Application implements Client.ResultHa
             }
             if (uo.name.equals("my_id")){
                 // save my_id
-                TdApi.OptionInteger ov = (TdApi.OptionInteger) uo.value;
+                TdApi.OptionValue ov = uo.value;
 
-                info("save my_id (update option): " + ov.value);
-                editor.putInt(PreferenceKeys.MY_ID, ov.value);
+                info("save my_id (update option): " + ov.toString()); // @new
+                editor.putInt(PreferenceKeys.MY_ID, Integer.parseInt(ov.toString())); // @new
                 editor.apply();
             }
         }else if (object instanceof TdApi.Chat) {
             TdApi.Chat chat = (TdApi.Chat) object;
-            if (chat.type instanceof TdApi.ChatInfo){
-                TdApi.PrivateChatInfo ci = (TdApi.PrivateChatInfo) chat.type;
-                if (ci.user.username.equals(mPrefs.getString(PreferenceKeys.BOT_NAME, ""))) {
-                    info("chat :: set BotChatId to : " + chat.id);
-                    editor.putLong(PreferenceKeys.BOT_ID, chat.id);
-                    editor.apply();
-
-//                    sendFunction(new TdApi.SendBotStartMessage(mPrefs.getInt(PreferenceKeys.BOT_ID, 0), mPrefs.getInt(PreferenceKeys.MY_ID, 0), "" + System.currentTimeMillis()), this);
-
-                }
+            // @new
+            if (chat.type != null){
+                TdApi.ChatTypePrivate ci = (TdApi.ChatTypePrivate) chat.type;
+//                if (ci.userId.equals(mPrefs.getString(PreferenceKeys.BOT_NAME, ""))) {
+//                    info("chat :: set BotChatId to : " + chat.id);
+//                    editor.putLong(PreferenceKeys.BOT_ID, chat.id);
+//                    editor.apply();
+//
+////                    sendFunction(new TdApi.SendBotStartMessage(mPrefs.getInt(PreferenceKeys.BOT_ID, 0), mPrefs.getInt(PreferenceKeys.MY_ID, 0), "" + System.currentTimeMillis()), this);
+//
+//                }
             }
-        }else if (object instanceof TdApi.UpdateChat) {
-            info("UpdateChat");
-            TdApi.UpdateChat updateChat = (TdApi.UpdateChat) object;
-            if (updateChat.chat.type instanceof TdApi.ChatInfo){
-                TdApi.PrivateChatInfo ci = (TdApi.PrivateChatInfo) updateChat.chat.type;
-                if (ci.user.username.equals(mPrefs.getString(PreferenceKeys.BOT_NAME, ""))) {
-                    info("update chat :: set BotChatId to : " + updateChat.chat.id);
-                    editor.putLong(PreferenceKeys.BOT_ID, updateChat.chat.id);
-                    editor.apply();
-                }
-            }
-        }else if (object instanceof TdApi.AuthStateOk) {
-            // Broadcast AuthState OK to Main for green semaphore
-            // 1.
-            final Intent intent = new Intent("de.egi.geofence.geozone.plugin.tgm.AUTHSTATEOK");
-            sendBroadcast(intent);
-            if (mPrefs.getLong(PreferenceKeys.BOT_ID, 0) == 0) {
-                sendFunction(new TdApi.GetChats(0, 0, 2000), this);
-            }else{
-                sendFunction(new TdApi.GetChats(0, mPrefs.getLong(PreferenceKeys.BOT_ID, 0) , 2000), this);
-            }
-            // Logged in
-            info("auth state OK :: login state: true");
-            editor.putBoolean(PreferenceKeys.LOGGEDSTATE, true);
-            editor.apply();
-
-            // Search for Bot
-//            sendFunction(new TdApi.SearchPublicChat(mPrefs.getString(PreferenceKeys.BOT_NAME, "")), this);
-
-            info("AuthStateOk");
         }else if (object instanceof TdApi.Chats) {
             // 2.
             TdApi.Chats chats = (TdApi.Chats) object;
             sendFunction(new TdApi.OpenChat(mPrefs.getLong(PreferenceKeys.BOT_ID, 0)), this);
+            boolSendNow = true;
         }else if (object instanceof TdApi.Ok) {
             // 3.
             TdApi.Ok ok = (TdApi.Ok) object;
             // Broadcast send message
-            final Intent intent = new Intent("de.egi.geofence.geozone.plugin.tgm.SENDMESSAGE");
-            sendBroadcast(intent);
+//            Intent intent = new Intent();
+//            intent.setAction("de.egi.geofence.geozone.plugin.tgm.SENDMESSAGE");
+//            getApplicationContext().sendBroadcast(intent);
 
-        }else if (object instanceof TdApi.AuthStateLoggingOut) {
-            // Broadcast AuthState OK to Main for red semaphore
-            final Intent intent = new Intent("de.egi.geofence.geozone.plugin.tgm.AUTHSTATENOK");
-            sendBroadcast(intent);
+            if (boolSendNow && GlobalSingleton.getInstance() != null && !GlobalSingleton.getInstance().getCommand().isEmpty()){
+                boolSendNow = false;
+                String c = GlobalSingleton.getInstance().getCommand();
+                long cb = GlobalSingleton.getInstance().getChatBotId();
 
-            info("auth state OK :: login state: false");
-            editor.putBoolean(PreferenceKeys.LOGGEDSTATE, false);
-            editor.apply();
-            info("AuthStateLoggingOut");
+                if (c != null && !c.equals("")) {
+                    if (cb == 0) {
+                        // nothing
+                    } else {
+                        TgmPluginApplication tpa = ((TgmPluginApplication) getApplicationContext());
+                        TdApi.FormattedText formattedText = new TdApi.FormattedText();
+                        formattedText.text = c;
+                        tpa.sendMessage(cb, new TdApi.InputMessageText( formattedText, true, true), tpa);
+                        GlobalSingleton.getInstance().setCommand("");
+                    }
+                }
+            }
+
+
         }else if (object instanceof TdApi.Error) {
             TdApi.Error error = (TdApi.Error) object;
             if (error.message.equals("Unauthorized")) {
@@ -254,7 +257,12 @@ public class TgmPluginApplication extends Application implements Client.ResultHa
                 int notifyId = 200;
                 Intent openIntent = new Intent(this, TgmPluginMain.class);
                 openIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                PendingIntent pendingIntent = PendingIntent.getActivity(this, notifyId, openIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent pendingIntent;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                    pendingIntent = PendingIntent.getActivity(this, notifyId, openIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+                }else{
+                    pendingIntent = PendingIntent.getActivity(this, notifyId, openIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                }
                 NotificationUtil.notify(this,
                         notifyId,
                         pendingIntent,
@@ -266,7 +274,12 @@ public class TgmPluginApplication extends Application implements Client.ResultHa
                 int notifyId = 202;
                 Intent openIntent = new Intent(this, TgmPluginMain.class);
                 openIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                PendingIntent pendingIntent = PendingIntent.getActivity(this, notifyId, openIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent pendingIntent;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                    pendingIntent = PendingIntent.getActivity(this, notifyId, openIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+                }else{
+                    pendingIntent = PendingIntent.getActivity(this, notifyId, openIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                }
                 NotificationUtil.notify(this,
                         notifyId,
                         pendingIntent,
@@ -278,41 +291,40 @@ public class TgmPluginApplication extends Application implements Client.ResultHa
         }
         else{
             if (boolGetAuthState) {
-                sendFunction(new TdApi.GetAuthState(), this);
+                sendFunction(new TdApi.GetAuthorizationState(), this);
                 boolGetAuthState = false;
                 info("do GetAuthState");
             }
         }
     }
 
-    private Client getClient() {
-        if (client == null) {
-            try {
-                File f = new File(getPackageManager()
-                        .getPackageInfo(getPackageName(), 0)
-                        .applicationInfo.dataDir + "/egztgm/");
-                if (f.exists()) {
-                    final String absolutePath = f.getAbsolutePath();
-                    TG.setDir(absolutePath);
-                }
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-            }
+//    private Client getClient() {
+//        if (client == null) {
+//            try {
+//                File f = new File(getPackageManager()
+//                        .getPackageInfo(getPackageName(), 0)
+//                        .applicationInfo.dataDir + "/egztgm/");
+//                if (f.exists()) {
+//                    final String absolutePath = f.getAbsolutePath();
+////                    TG.setDir(absolutePath);
+//                }
+//            } catch (PackageManager.NameNotFoundException e) {
+//                e.printStackTrace();
+//            }
+//
+////            client = TG.getClientInstance();
+//        }
+//        return client;
+//    }
 
-            client = TG.getClientInstance();
-        }
-        return client;
-    }
-
-    public void sendFunction(TdApi.TLFunction func, Client.ResultHandler handler) {
+    public void sendFunction(TdApi.Function func, Client.ResultHandler handler) {
         info("sendFunction: " + func.toString());
-        client = getClient();
         client.send(func, handler);
     }
 
     public void sendMessage(long chatId, TdApi.InputMessageContent inputMessageContent, Client.ResultHandler handler) {
-        client = getClient();
-        final TdApi.SendMessage function = new TdApi.SendMessage(chatId, 0, true, true, null, inputMessageContent);
+        TdApi.MessageSendOptions sendMessageOptions = new TdApi.MessageSendOptions(true, true, null);
+        final TdApi.SendMessage function = new TdApi.SendMessage(chatId, 0, 0, sendMessageOptions, null, inputMessageContent);
         client.send(function, handler);
     }
 
@@ -334,9 +346,108 @@ public class TgmPluginApplication extends Application implements Client.ResultHa
     // Check for all needed permissions
     public boolean checkWritePermission(){
         int result = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (result != PackageManager.PERMISSION_GRANTED){
-            return false;
-        }
-        return true;
+        return result == PackageManager.PERMISSION_GRANTED;
     }
+
+    private void onAuthorizationStateUpdated(TdApi.AuthorizationState authorizationState) {
+        if (authorizationState != null) {
+            TgmPluginApplication.authorizationState = authorizationState;
+        }
+        switch (TgmPluginApplication.authorizationState.getConstructor()) {
+            case TdApi.AuthorizationStateWaitTdlibParameters.CONSTRUCTOR:
+                TdApi.TdlibParameters parameters = new TdApi.TdlibParameters();
+                parameters.databaseDirectory = getApplicationContext().getFilesDir().getAbsolutePath() + File.separator + "tdlib";
+                parameters.useMessageDatabase = true;
+                parameters.useSecretChats = true;
+                parameters.apiId = 93054;
+                parameters.apiHash = "16758ee9e2f0411a4efc5d1eb1edea07";
+                parameters.systemLanguageCode = "en";
+                parameters.deviceModel = "Desktop";
+                parameters.systemVersion = "Unknown";
+                parameters.applicationVersion = "1.0";
+                parameters.enableStorageOptimizer = true;
+//                parameters.useTestDc = true;
+
+                client.send(new TdApi.SetTdlibParameters(parameters), new AuthorizationRequestHandler());
+                break;
+            case TdApi.AuthorizationStateWaitEncryptionKey.CONSTRUCTOR:
+                client.send(new TdApi.CheckDatabaseEncryptionKey(), new AuthorizationRequestHandler());
+                break;
+            case TdApi.AuthorizationStateWaitPhoneNumber.CONSTRUCTOR: {
+                Intent intent = new Intent(this, PhoneNumber.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+            }
+            case TdApi.AuthorizationStateWaitCode.CONSTRUCTOR: {
+                Intent intent = new Intent(this, Code.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                break;
+            }
+            case TdApi.AuthorizationStateWaitPassword.CONSTRUCTOR: {
+                // @new
+//                String password = promptString("Please enter password: ");
+//                client.send(new TdApi.CheckAuthenticationPassword(password), new AuthorizationRequestHandler());
+                break;
+            }
+            case TdApi.AuthorizationStateReady.CONSTRUCTOR:
+                // Broadcast AuthState OK to Main for green semaphore
+                // 1.
+                final Intent intent = new Intent("de.egi.geofence.geozone.plugin.tgm.AUTHSTATEOK");
+                sendBroadcast(intent);
+                sendFunction(new TdApi.GetChats(null, 2000), this);
+                // Logged in
+                info("auth state OK :: login state: true");
+                editor.putBoolean(PreferenceKeys.LOGGEDSTATE, true);
+                editor.apply();
+
+                // Search for Bot
+//            sendFunction(new TdApi.SearchPublicChat(mPrefs.getString(PreferenceKeys.BOT_NAME, "")), this);
+
+                info("AuthStateOk");
+
+                break;
+            case TdApi.AuthorizationStateLoggingOut.CONSTRUCTOR:
+                print("Logging out");
+                // Broadcast AuthState OK to Main for red semaphore
+                final Intent intentOK = new Intent("de.egi.geofence.geozone.plugin.tgm.AUTHSTATENOK");
+                sendBroadcast(intentOK);
+
+                info("auth state OK :: login state: false");
+                editor.putBoolean(PreferenceKeys.LOGGEDSTATE, false);
+                editor.apply();
+                info("AuthStateLoggingOut");
+
+                break;
+            case TdApi.AuthorizationStateClosing.CONSTRUCTOR:
+                print("Closing");
+                break;
+            case TdApi.AuthorizationStateClosed.CONSTRUCTOR:
+                print("Closed");
+                client.close();
+                break;
+            default:
+                System.err.println("Unsupported authorization state:" + newLine + authorizationState);
+            case TdApi.AuthorizationStateWaitOtherDeviceConfirmation.CONSTRUCTOR:
+                break;
+            case TdApi.AuthorizationStateWaitRegistration.CONSTRUCTOR:
+                break;
+        }
+    }
+
+    private class AuthorizationRequestHandler implements Client.ResultHandler {
+        @Override
+        public void onResult(TdApi.Object object) {
+            int constructor = object.getConstructor();
+            if (constructor == TdApi.Error.CONSTRUCTOR) {
+                System.err.println("Receive an error:" + newLine + object);
+                onAuthorizationStateUpdated(null); // repeat last action
+            } else if (constructor == TdApi.Ok.CONSTRUCTOR) {// result is already received through UpdateAuthorizationState, nothing to do
+            } else {
+                System.err.println("Receive wrong response from TDLib:" + newLine + object);
+            }
+        }
+    }
+
 }

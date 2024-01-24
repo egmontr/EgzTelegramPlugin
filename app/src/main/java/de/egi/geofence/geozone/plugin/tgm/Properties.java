@@ -29,8 +29,6 @@ public class Properties extends Activity   {
         setContentView(R.layout.properties);
 
         SharedPreferences mPrefs = getSharedPreferences(TgmPluginMain.SHARED_PREFERENCE_NAME, MODE_PRIVATE);
-        ((EditText) this.findViewById(R.id.editFirstName)).setText(mPrefs.getString(PreferenceKeys.USER_FIRST_NAME, ""));
-        ((EditText) this.findViewById(R.id.editLastName)).setText(mPrefs.getString(PreferenceKeys.USER_LAST_NAME, ""));
         ((EditText) this.findViewById(R.id.editPhone)).setText(mPrefs.getString(PreferenceKeys.PHONE_NUMBER, ""));
         ((EditText) this.findViewById(R.id.editBotName)).setText(mPrefs.getString(PreferenceKeys.BOT_NAME, ""));
         ((EditText) this.findViewById(R.id.editBotID)).setText(Long.toString(mPrefs.getLong(PreferenceKeys.BOT_ID, 0)));

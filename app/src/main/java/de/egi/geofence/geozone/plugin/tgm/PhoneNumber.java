@@ -20,7 +20,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -92,7 +92,8 @@ public class PhoneNumber extends AppCompatActivity implements TextWatcher, View.
     @Override
     public void onClick(View view) {
         TgmPluginApplication tpa = ((TgmPluginApplication)getApplication());
-        tpa.sendFunction(new TdApi.SetAuthPhoneNumber(phoneNumber.getText().toString(), true, true), tpa);
+        TdApi.PhoneNumberAuthenticationSettings phoneNumberAuthenticationSettings = new TdApi.PhoneNumberAuthenticationSettings(true, true, true, false, null);
+        tpa.sendFunction(new TdApi.SetAuthenticationPhoneNumber(phoneNumber.getText().toString(), phoneNumberAuthenticationSettings), tpa);
         finish();
     }
 }

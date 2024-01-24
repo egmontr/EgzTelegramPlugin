@@ -32,7 +32,7 @@
     <string name="disclaimer">THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\nA few of the icons are made by Freepik from www.flaticon.com</string>
 
     <string name="hp">EgiGeoZone website:\n <a href="http://www.egigeozone.de">http://www.egigeozone.de</a></string>
-    <string name="forum">EgiGeoZone forum:\n <a href="http://rpi.spdns.eu/egigeozone/">http://rpi.spdns.eu/egigeozone/</a></string>
+    <string name="forum">EgiGeoZone forum:\n <a href="http://www.egigeozone.de/forum">"http://www.egigeozone.de/forum"</a></string>
 
     <string name="title">Telegram Plugin settings</string>
     <string name="aswitch">Activate Plugin</string>
@@ -75,10 +75,11 @@
     <string name="geofence_transition_exited">exited</string>
 
 
-        <string name="alertPermissions">From Android 6 you have to enable App permissions under settings (Settings \u279d Apps \u279d EgiGeoZone \u279d Permissions). After that start again.
+        <string name="alertPermissions">Please enable App permissions under settings (Settings \u279d Apps \u279d EgiGeoZone \u279d Permissions). After that start again.
         \n\n
         The following permissions are needed:\n\n
         Write permission (Storage): This app writes a log file.\n\n
+        Notification permission: For notifications.\n\n
     </string>
     <string name="titleAlertPermissions">Enable permissions for App</string>
 

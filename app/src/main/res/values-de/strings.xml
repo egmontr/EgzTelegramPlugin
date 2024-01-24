@@ -26,7 +26,7 @@
     <string name="disclaimer">Die Software und Ihre Dokumentation wird \"wie sie ist\" und ohne jede Gewährleistung für Funktion, Korrektheit oder Fehlerfreiheit zur Verfügung gestellt. Für jedweden direkten oder indirekten Schaden - insbesondere Schaden an anderer Software, Schaden an Hardware, Schaden durch Nutzungsausfall und Schaden durch Funktionsuntüchtigkeit der Software, kann der Autor nicht haftbar gemacht werden. Ausschließlich der Benutzer haftet für die Folgen der Benutzung dieser Software. Diese Software wurde mit größter Sorgfalt entwickelt, jedoch können Fehler niemals ausgeschlossen werden. Es kann daher keine Gewähr für die Sicherheit Ihrer Daten übernommen werden.\n\nEin paar wenige Icons sind made by Freepik von www.flaticon.com</string>
 
     <string name="hp">EgiGeoZone-Webseite:\n <a href="http://www.egigeozone.de">http://www.egigeozone.de</a></string>
-    <string name="forum">EgiGeoZone-Forum:\n <a href="http://rpi.spdns.eu/egigeozone/">http://rpi.spdns.eu/egigeozone/</a></string>
+    <string name="forum">EgiGeoZone-Forum:\n <a href="http://www.egigeozone.de/forum">"http://www.egigeozone.de/forum"/</a></string>
 
     <string name="title">Telegram Plugin Einstellungen</string>
     <string name="aswitch">Plugin aktivieren</string>
@@ -67,10 +67,11 @@
     <string name="geofence_transition_entered">betreten</string>
     <string name="geofence_transition_exited">verlassen</string>
 
-        <string name="alertPermissions">Ab Android 6 ist es nötig die Berechtigungen unter den Geräteeinstellungen zu setzen (Einstellungen \u279d Apps \u279d EgiGeoZone \u279d Berechtigungen). Danach bitte die App neu öffnen.
+        <string name="alertPermissions">Bitte die Berechtigungen unter den Geräteeinstellungen zu setzen (Einstellungen \u279d Apps \u279d EgiGeoZone \u279d Berechtigungen). Danach die App neu öffnen.
             \n\n
         Folgende Berechtigungen werden für eine korrekte Funktionsweise der App benötigt:\n\n
         Schreibberechtigung (Speicher): Diese App schreibt eine Log-Datei.\n\n
+        Benachrichtigungen: Wenn die App Benachrichtigungen senden soll.\n\n
     </string>
     <string name="titleAlertPermissions">Berechtigungen für App setzen</string>
 

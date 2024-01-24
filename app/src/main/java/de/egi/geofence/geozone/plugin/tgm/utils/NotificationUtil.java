@@ -17,13 +17,14 @@
 package de.egi.geofence.geozone.plugin.tgm.utils;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.support.v4.app.NotificationCompat;
+import androidx.core.app.NotificationCompat;
 
 public class NotificationUtil {
 //	private final static Logger log = Logger.getLogger(NotificationUtil.class);
@@ -32,7 +33,28 @@ public class NotificationUtil {
 	public static void notify(Context context, int notifyId, PendingIntent pendingIntent, String contentTitle,
 							  String contentText, String tickerText, boolean vibrate, boolean playSound, int icon) {
 		Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context)
+
+		// Get an instance of the Notification manager
+		NotificationManager notificationManager =
+				(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+		String channelId = "channel-gcm";
+		String channelName = "EgiTgmPlugin";
+
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+			NotificationChannel mChannel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
+			mChannel.setShowBadge(true);
+			mChannel.shouldShowLights();
+			if (vibrate) {
+				mChannel.enableVibration(true);
+				mChannel.setVibrationPattern(new long[] { 100, 400 });
+			}
+
+			notificationManager.createNotificationChannel(mChannel);
+		}
+
+
+		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, channelId)
 				.setContentTitle(contentTitle)
 				.setContentText(contentText)
 				.setTicker(tickerText)
@@ -49,7 +71,6 @@ public class NotificationUtil {
 			notificationBuilder.setSound(alarmSound);
 		}
 		Notification notification = notificationBuilder.build();
-		NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		notificationManager.notify(notifyId, notification);
 	}
 }

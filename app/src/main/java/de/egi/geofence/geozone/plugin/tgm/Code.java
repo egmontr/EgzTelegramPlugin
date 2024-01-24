@@ -16,11 +16,9 @@
 
 package de.egi.geofence.geozone.plugin.tgm;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -28,6 +26,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.drinkless.td.libcore.telegram.TdApi;
 
@@ -39,11 +39,8 @@ public class Code extends AppCompatActivity implements TextWatcher, View.OnClick
     private SharedPreferences.Editor editor;
 
     private EditText code;
-    private EditText fname;
-    private EditText lname;
     private EditText botname;
 
-    @SuppressLint("CommitPrefEdits")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,20 +48,14 @@ public class Code extends AppCompatActivity implements TextWatcher, View.OnClick
         SharedPreferences mPrefs = getSharedPreferences(SHARED_PREFERENCE_NAME, MODE_PRIVATE);
         editor = mPrefs.edit();
 
-        code = (EditText) this.findViewById(R.id.editCode);
-        fname = (EditText) this.findViewById(R.id.editFirstName);
-        lname = (EditText) this.findViewById(R.id.editLastName);
-        botname = (EditText) this.findViewById(R.id.editBotName);
-        Button button = (Button) this.findViewById(R.id.button);
+        code = this.findViewById(R.id.editCode);
+        botname = this.findViewById(R.id.editBotName);
+        Button button = this.findViewById(R.id.button);
 
         code.addTextChangedListener(this);
-        fname.addTextChangedListener(this);
-        lname.addTextChangedListener(this);
         botname.addTextChangedListener(this);
         button.setOnClickListener(this);
 
-        lname.setText(mPrefs.getString(PreferenceKeys.USER_LAST_NAME, ""));
-        fname.setText(mPrefs.getString(PreferenceKeys.USER_FIRST_NAME, ""));
         botname.setText(mPrefs.getString(PreferenceKeys.BOT_NAME, ""));
     }
 
@@ -96,11 +87,7 @@ public class Code extends AppCompatActivity implements TextWatcher, View.OnClick
 
     @Override
     public void afterTextChanged(Editable s) {
-        if (lname.getText().hashCode() == s.hashCode()) {
-            editor.putString(PreferenceKeys.USER_LAST_NAME, lname.getText().toString().trim());
-        } else if (fname.getText().hashCode() == s.hashCode()) {
-            editor.putString(PreferenceKeys.USER_FIRST_NAME, fname.getText().toString().trim());
-        }else if (botname.getText().hashCode() == s.hashCode()) {
+        if (botname.getText().hashCode() == s.hashCode()) {
             editor.putString(PreferenceKeys.BOT_NAME, botname.getText().toString().trim());
         }else if (code.getText().hashCode() == s.hashCode()) {
             editor.putString(PreferenceKeys.CODE, code.getText().toString().trim());
@@ -111,7 +98,7 @@ public class Code extends AppCompatActivity implements TextWatcher, View.OnClick
     @Override
     public void onClick(View view) {
         TgmPluginApplication tpa = ((TgmPluginApplication)getApplication());
-        tpa.sendFunction(new TdApi.CheckAuthCode(code.getText().toString(), fname.getText().toString(), lname.getText().toString()), tpa);
+        tpa.sendFunction(new TdApi.CheckAuthenticationCode(code.getText().toString()), tpa);
         finish();
     }
 }

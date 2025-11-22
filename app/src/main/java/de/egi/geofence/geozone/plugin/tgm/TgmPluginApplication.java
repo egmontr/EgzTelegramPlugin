@@ -316,8 +316,6 @@ public class TgmPluginApplication extends Application implements Client.ResultHa
                 parameters.databaseDirectory = getApplicationContext().getFilesDir().getAbsolutePath() + File.separator + "tdlib";
                 parameters.useMessageDatabase = true;
                 parameters.useSecretChats = true;
-//                parameters.apiId = 93054;
-//                parameters.apiHash = "16758ee9e2f0411a4efc5d1eb1edea07";
                 // Siehe local.properties
                 parameters.apiId = BuildConfig.TD_API_ID;
                 parameters.apiHash =  BuildConfig.TD_API_HASH;

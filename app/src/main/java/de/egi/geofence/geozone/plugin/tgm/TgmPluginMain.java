@@ -51,8 +51,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import org.apache.log4j.Level;
-import org.drinkless.td.libcore.telegram.Client;
-import org.drinkless.td.libcore.telegram.TdApi;
+import org.drinkless.tdlib.Client;
+import org.drinkless.tdlib.TdApi;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -104,7 +104,7 @@ public class TgmPluginMain extends AppCompatActivity implements TextWatcher, Com
         }
     };
 
-    @SuppressLint("CommitPrefEdits")
+    @SuppressLint({"CommitPrefEdits", "UnspecifiedRegisterReceiverFlag"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -384,7 +384,7 @@ public class TgmPluginMain extends AppCompatActivity implements TextWatcher, Com
     public void onClick(View view) {
         int id = view.getId();
         if (id == R.id.logoff) {// @new
-            tpa.sendFunction(new TdApi.LogOut(), tpa);
+            tpa.sendFunction(new TdApi.Close(), tpa);
         } else if (id == R.id.login) {
             TgmPluginApplication.setClient(Client.create(tpa, null, null)); // recreate client after previous has closed
         } else if (id == R.id.sendTestMessage) {
@@ -433,7 +433,11 @@ public class TgmPluginMain extends AppCompatActivity implements TextWatcher, Com
             // Save command to globals
             GlobalSingleton.getInstance().setCommand(command);
             // Get AuthState and den Broadcast to send message
-            tpa.sendFunction(new TdApi.GetAuthorizationState(), tpa);
+//            tpa.sendFunction(new TdApi.GetAuthorizationState(), tpa);
+            TdApi.FormattedText formattedText = new TdApi.FormattedText();
+            formattedText.text = command;
+            tpa.sendMessage(chatBotId, new TdApi.InputMessageText( formattedText, null, true), tpa);
+            GlobalSingleton.getInstance().setCommand("");
         }
     }
 
@@ -446,6 +450,7 @@ public class TgmPluginMain extends AppCompatActivity implements TextWatcher, Com
         }
     }
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     @Override
     protected void onResume() {
         super.onResume();

@@ -29,7 +29,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.drinkless.td.libcore.telegram.TdApi;
+import org.drinkless.tdlib.TdApi;
 
 import de.egi.geofence.geozone.plugin.tgm.preferences.PreferenceKeys;
 
@@ -92,7 +92,7 @@ public class PhoneNumber extends AppCompatActivity implements TextWatcher, View.
     @Override
     public void onClick(View view) {
         TgmPluginApplication tpa = ((TgmPluginApplication)getApplication());
-        TdApi.PhoneNumberAuthenticationSettings phoneNumberAuthenticationSettings = new TdApi.PhoneNumberAuthenticationSettings(true, true, true, false, null);
+        TdApi.PhoneNumberAuthenticationSettings phoneNumberAuthenticationSettings = new TdApi.PhoneNumberAuthenticationSettings(true, true, true, false, false,null,null);
         tpa.sendFunction(new TdApi.SetAuthenticationPhoneNumber(phoneNumber.getText().toString(), phoneNumberAuthenticationSettings), tpa);
         finish();
     }

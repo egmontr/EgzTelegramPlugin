@@ -23,7 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
-import org.drinkless.td.libcore.telegram.TdApi;
+import org.drinkless.tdlib.TdApi;
 
 import java.util.Hashtable;
 
@@ -173,7 +173,12 @@ public class TgmBroadcastReceiverPlugin extends BroadcastReceiver {
         // Save command to globals
         GlobalSingleton.getInstance().setCommand(command);
         // Get AuthState and then Broadcast to send message
-        tpa.sendFunction(new TdApi.GetAuthorizationState(), tpa);
+//        tpa.sendFunction(new TdApi.GetAuthorizationState(), tpa);
+
+        TdApi.FormattedText formattedText = new TdApi.FormattedText();
+        formattedText.text = command;
+        tpa.sendMessage(chatBotId, new TdApi.InputMessageText( formattedText, null, true), tpa);
+        GlobalSingleton.getInstance().setCommand("");
     }
 }
 

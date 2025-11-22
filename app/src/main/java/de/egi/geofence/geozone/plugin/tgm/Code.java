@@ -29,7 +29,7 @@ import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import org.drinkless.td.libcore.telegram.TdApi;
+import org.drinkless.tdlib.TdApi;
 
 import de.egi.geofence.geozone.plugin.tgm.preferences.PreferenceKeys;
 

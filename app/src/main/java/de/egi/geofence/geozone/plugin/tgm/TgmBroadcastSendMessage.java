@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import androidx.legacy.content.WakefulBroadcastReceiver;
 
-import org.drinkless.td.libcore.telegram.TdApi;
+import org.drinkless.tdlib.TdApi;
 
 public class TgmBroadcastSendMessage extends WakefulBroadcastReceiver {
     @Override
@@ -20,8 +20,8 @@ public class TgmBroadcastSendMessage extends WakefulBroadcastReceiver {
                     TgmPluginApplication tpa = ((TgmPluginApplication) context.getApplicationContext());
                     TdApi.FormattedText formattedText = new TdApi.FormattedText();
                     formattedText.text = c;
-                    tpa.sendMessage(cb, new TdApi.InputMessageText( formattedText, true, true), tpa);
-                        GlobalSingleton.getInstance().setCommand("");
+                    tpa.sendMessage(cb, new TdApi.InputMessageText( formattedText, null, true), tpa);
+                    GlobalSingleton.getInstance().setCommand("");
                 }
             }
         }

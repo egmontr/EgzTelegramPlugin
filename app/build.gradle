@@ -1,14 +1,20 @@
 apply plugin: 'com.android.application'
 
+def localProps = new Properties()
+localProps.load(new FileInputStream(rootProject.file("local.properties")))
+
 android {
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         applicationId "de.egi.geofence.geozone.plugin.tgm"
-        minSdkVersion(21) // Android 5.0
-        targetSdkVersion(35)
+        minSdkVersion 21 // Android 5.0
+        targetSdkVersion 36 // Android 16
         versionCode 114
         versionName "1.1.4"
+
+        buildConfigField "int", "TD_API_ID", localProps["td_api_id"]
+        buildConfigField "String", "TD_API_HASH", "\"${localProps['td_api_hash']}\""
 
     }
 
@@ -33,7 +39,7 @@ android {
 dependencies {
     implementation project(':libtd')
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'log4j:log4j:1.2.17'
     implementation 'de.mindpipe.android:android-logging-log4j:1.0.3'
     implementation 'androidx.legacy:legacy-support-v13:1.0.0'

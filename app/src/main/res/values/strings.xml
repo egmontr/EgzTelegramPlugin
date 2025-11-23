@@ -37,6 +37,8 @@
     <string name="title">Telegram Plugin settings</string>
     <string name="aswitch">Activate Plugin</string>
 
+    <string name="loginText">Login state</string>
+
     <string name="props">Saved values</string>
     <string name="props_bname">Bot username</string>
     <string name="props_fname">First name</string>

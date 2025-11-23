@@ -10,8 +10,8 @@ android {
         applicationId "de.egi.geofence.geozone.plugin.tgm"
         minSdkVersion 21 // Android 5.0
         targetSdkVersion 36 // Android 16
-        versionCode 114
-        versionName "1.1.4"
+        versionCode 115
+        versionName "1.1.5"
 
         buildConfigField "int", "TD_API_ID", localProps["td_api_id"]
         buildConfigField "String", "TD_API_HASH", "\"${localProps['td_api_hash']}\""

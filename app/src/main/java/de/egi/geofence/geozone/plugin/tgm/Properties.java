@@ -20,18 +20,30 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import de.egi.geofence.geozone.plugin.tgm.preferences.PreferenceKeys;
 
 public class Properties extends Activity   {
+    private ImageView ampel = null;
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.properties);
+
+        ampel = this.findViewById(R.id.login_state);
 
         SharedPreferences mPrefs = getSharedPreferences(TgmPluginMain.SHARED_PREFERENCE_NAME, MODE_PRIVATE);
         ((EditText) this.findViewById(R.id.editPhone)).setText(mPrefs.getString(PreferenceKeys.PHONE_NUMBER, ""));
         ((EditText) this.findViewById(R.id.editBotName)).setText(mPrefs.getString(PreferenceKeys.BOT_NAME, ""));
         ((EditText) this.findViewById(R.id.editBotID)).setText(Long.toString(mPrefs.getLong(PreferenceKeys.BOT_ID, 0)));
         ((EditText) this.findViewById(R.id.editCode)).setText(mPrefs.getString(PreferenceKeys.CODE, ""));
+
+        if (mPrefs.getBoolean(PreferenceKeys.LOGGEDSTATE, false)){
+            // Set semaphore to green
+            ampel.setImageResource(R.drawable.ic_lens_green_24dp);
+        }else{
+            // Set semaphore to red
+            ampel.setImageResource(R.drawable.ic_lens_red_24dp);
+        }
     }
 }

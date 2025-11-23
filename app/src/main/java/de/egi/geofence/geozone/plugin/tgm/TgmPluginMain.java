@@ -48,7 +48,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import org.apache.log4j.Level;
 import org.drinkless.tdlib.Client;
@@ -148,7 +147,7 @@ public class TgmPluginMain extends AppCompatActivity implements TextWatcher, Com
             this.registerReceiver(mReceiver, filter2);
         }
 
-        ampel = this.findViewById(R.id.tracking_service_state);
+        ampel = this.findViewById(R.id.login_state);
 
         SharedPreferences mPrefs = getSharedPreferences(SHARED_PREFERENCE_NAME, MODE_PRIVATE);
         editor = mPrefs.edit();

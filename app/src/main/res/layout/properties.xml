@@ -74,7 +74,6 @@
             android:gravity="center_vertical"
             android:text="@string/props_code"
             android:textAppearance="?android:attr/textAppearanceMedium" />
-
         <EditText
             android:id="@+id/editCode"
             android:layout_width="match_parent"
@@ -82,5 +81,28 @@
             android:layout_gravity="center_vertical"
             android:inputType="none" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/editLogin"
+                android:layout_width="292dp"
+                android:layout_height="60dp"
+                android:layout_gravity="center_vertical"
+                android:inputType="none"
+                android:text="@string/loginText" />
+
+            <ImageView
+                android:id="@+id/login_state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:contentDescription="@string/state"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp" />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

@@ -260,6 +260,11 @@ public class TgmPluginMain extends AppCompatActivity implements TextWatcher, Com
             activityResultLaunch.launch(i4); // 4712
             return true;
         }
+        if (id == R.id.action_log_file) {
+            Intent i6 = new Intent(this, LogFile.class);
+            activityResultLaunch.launch(i6); // 4712
+            return true;
+        }
         if (id == R.id.action_props) {
             Intent i5 = new Intent(this, Properties.class);
             startActivity(i5);

@@ -11,6 +11,11 @@
         app:showAsAction="never"
         android:icon="@drawable/ic_bug_report_black_24dp"
         />
+    <item android:id="@+id/action_log_file" android:title="@string/menu_item_log"
+        android:orderInCategory="100"
+        app:showAsAction="never"
+        android:icon="@drawable/ic_description_black_24dp"
+        />
     <item android:id="@+id/action_info" android:title="@string/action_info"
         android:orderInCategory="100"
         app:showAsAction="never"

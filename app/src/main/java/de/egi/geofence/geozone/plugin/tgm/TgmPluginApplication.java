@@ -22,6 +22,7 @@ import android.app.Application;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.util.Log;
@@ -82,7 +83,9 @@ public class TgmPluginApplication extends Application implements Client.ResultHa
         }
         log = Logger.getLogger(TgmPluginApplication.class);
         if (logConfigurator.getFileName().equalsIgnoreCase("android-log4j.log")){
-            logConfigurator.setFileName(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + "tgmplugin" + File.separator + "tgmplugin.log");
+//            logConfigurator.setFileName(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + File.separator + "tgmplugin" + File.separator + "tgmplugin.log");
+            logConfigurator.setFileName(this.getFilesDir() + File.separator + "tgmplugin" + File.separator + "tgmplugin.log");
+
             logConfigurator.setUseFileAppender(true);
             logConfigurator.setRootLevel(Level.toLevel(level));
             // Set log level of a specific logger
@@ -123,7 +126,7 @@ public class TgmPluginApplication extends Application implements Client.ResultHa
     @SuppressLint("UnspecifiedImmutableFlag")
     @Override
     public void onResult(TdApi.Object object) {
-        info("onResult :" + object.toString());
+//        info("onResult :" + object.toString());
 
         if (object instanceof TdApi.UpdateNewMessage) {
             TdApi.UpdateNewMessage newMessage = (TdApi.UpdateNewMessage) object;
@@ -244,8 +247,11 @@ public class TgmPluginApplication extends Application implements Client.ResultHa
                         "Login: EgzTgmPlugin",
                         error.message + ": " +getString(R.string.please_login), "",
                         false, false, R.drawable.ic_dove_2);
-            }
-            else{
+
+            }else if (error.message.contains("Initialization parameters are needed")) {
+                error("Initialization parameters are needed");
+                sendAuthParams();
+            }else{
                 error("Do Error: " + error.message);
                 int notifyId = 202;
                 Intent openIntent = new Intent(this, TgmPluginMain.class);
@@ -302,8 +308,9 @@ public class TgmPluginApplication extends Application implements Client.ResultHa
 
     // Check for all needed permissions
     public boolean checkWritePermission(){
-        int result = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        return result == PackageManager.PERMISSION_GRANTED;
+//        int result = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+//        return result == PackageManager.PERMISSION_GRANTED;
+        return true;
     }
 
     private void onAuthorizationStateUpdated(TdApi.AuthorizationState authorizationState) {
@@ -312,21 +319,7 @@ public class TgmPluginApplication extends Application implements Client.ResultHa
         }
         switch (TgmPluginApplication.authorizationState.getConstructor()) {
             case TdApi.AuthorizationStateWaitTdlibParameters.CONSTRUCTOR:
-                TdApi.SetTdlibParameters parameters = new TdApi.SetTdlibParameters();
-                parameters.databaseDirectory = getApplicationContext().getFilesDir().getAbsolutePath() + File.separator + "tdlib";
-                parameters.useMessageDatabase = true;
-                parameters.useSecretChats = true;
-                // Siehe local.properties
-                parameters.apiId = BuildConfig.TD_API_ID;
-                parameters.apiHash =  BuildConfig.TD_API_HASH;
-                parameters.systemLanguageCode = "en";
-                parameters.deviceModel = "Desktop";
-                parameters.systemVersion = "Unknown";
-                parameters.applicationVersion = "1.14";
-//                parameters.enableStorageOptimizer = true;
-//                parameters.useTestDc = true;
-
-                client.send(parameters, new AuthorizationRequestHandler());
+                sendAuthParams();
                 break;
             case TdApi.AuthorizationStateWaitPhoneNumber.CONSTRUCTOR: {
                 Intent intent = new Intent(this, PhoneNumber.class);
@@ -392,6 +385,32 @@ public class TgmPluginApplication extends Application implements Client.ResultHa
             case TdApi.AuthorizationStateWaitRegistration.CONSTRUCTOR:
                 break;
         }
+    }
+
+    private void sendAuthParams(){
+        TdApi.SetTdlibParameters parameters = new TdApi.SetTdlibParameters();
+        parameters.databaseDirectory = getApplicationContext().getFilesDir().getAbsolutePath() + File.separator + "tdlib";
+        parameters.useMessageDatabase = true;
+        parameters.useSecretChats = true;
+        // Siehe local.properties
+        parameters.apiId = BuildConfig.TD_API_ID;
+        parameters.apiHash =  BuildConfig.TD_API_HASH;
+        parameters.systemLanguageCode = "en";
+        parameters.deviceModel = "Desktop";
+        parameters.systemVersion = "Unknown";
+        try {
+            PackageInfo pi = getPackageManager().getPackageInfo("de.egi.geofence.geozone.plugin.tgm", PackageManager.GET_CONFIGURATIONS);
+            String v = pi.versionName;
+            parameters.applicationVersion = v;
+        } catch (PackageManager.NameNotFoundException e) {
+            parameters.applicationVersion = "1.0.0";
+            e.printStackTrace();
+        }
+
+//                parameters.enableStorageOptimizer = true;
+//                parameters.useTestDc = true;
+
+        client.send(parameters, new AuthorizationRequestHandler());
     }
 
     private class AuthorizationRequestHandler implements Client.ResultHandler {

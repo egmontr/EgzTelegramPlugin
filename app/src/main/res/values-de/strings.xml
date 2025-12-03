@@ -69,7 +69,20 @@
     <string name="geofence_transition_entered">betreten</string>
     <string name="geofence_transition_exited">verlassen</string>
 
-        <string name="alertPermissions">Bitte die Berechtigungen unter den Geräteeinstellungen zu setzen (Einstellungen \u279d Apps \u279d EgiGeoZone \u279d Berechtigungen). Danach die App neu öffnen.
+    <string name="export_ok_text">Datei wurde exportiert.</string>
+    <string name="action_delete">Sicher löschen?</string>
+    <string name="action_yes">Ja</string>
+    <string name="action_no">Nein</string>
+
+    <string name="menu_item_send_log">Log-Datei senden</string>
+    <string name="menu_item_export_file">Datei exportieren</string>
+    <string name="menu_item_delete_gcm_log">Datei löschen</string>
+    <string name="menu_item_scroll_bottom_gcm_log">Zum Ende scrollen</string>
+    <string name="menu_item_scroll_top_gcm_log">Zum Anfang scrollen</string>
+    <string name="menu_item_log">Log-Datei anzeigen</string>
+
+
+    <string name="alertPermissions">Bitte die Berechtigungen unter den Geräteeinstellungen zu setzen (Einstellungen \u279d Apps \u279d EgiGeoZone \u279d Berechtigungen). Danach die App neu öffnen.
             \n\n
         Folgende Berechtigungen werden für eine korrekte Funktionsweise der App benötigt:\n\n
         Schreibberechtigung (Speicher): Diese App schreibt eine Log-Datei.\n\n

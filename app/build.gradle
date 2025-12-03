@@ -10,8 +10,8 @@ android {
         applicationId "de.egi.geofence.geozone.plugin.tgm"
         minSdkVersion 21 // Android 5.0
         targetSdkVersion 36 // Android 16
-        versionCode 115
-        versionName "1.1.5"
+        versionCode 116
+        versionName "1.1.6"
 
         buildConfigField "int", "TD_API_ID", localProps["td_api_id"]
         buildConfigField "String", "TD_API_HASH", "\"${localProps['td_api_hash']}\""
@@ -43,6 +43,7 @@ dependencies {
     implementation 'log4j:log4j:1.2.17'
     implementation 'de.mindpipe.android:android-logging-log4j:1.0.3'
     implementation 'androidx.legacy:legacy-support-v13:1.0.0'
+    implementation 'com.google.android.material:material:1.13.0'
 }
 // To avoid double classes
 configurations.implementation {

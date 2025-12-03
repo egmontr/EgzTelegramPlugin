@@ -39,6 +39,18 @@
 
         <activity android:name=".Properties" android:label="@string/action_props"/>
 
+        <activity android:name="de.egi.geofence.geozone.plugin.tgm.LogFile" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="de.egi.geofence.geozone.plugin.tgm.fileContentProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
+
         <!--
            WakefulBroadcastReceiver that will receive intents from EgiGeoZone
            and hand them to the custom IntentService.

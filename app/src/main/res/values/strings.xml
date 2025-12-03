@@ -76,6 +76,17 @@
     <string name="geofence_transition_entered">entered</string>
     <string name="geofence_transition_exited">exited</string>
 
+    <string name="export_ok_text">File exported.</string>
+    <string name="action_delete">Are you sure to delete?</string>
+    <string name="action_yes">Yes</string>
+    <string name="action_no">No</string>
+
+    <string name="menu_item_send_log">Send log file</string>
+    <string name="menu_item_export_file">Export file</string>
+    <string name="menu_item_delete_gcm_log">Delete file</string>
+    <string name="menu_item_scroll_bottom_gcm_log">Scroll to bottom log file</string>
+    <string name="menu_item_scroll_top_gcm_log">Scroll to top log file</string>
+    <string name="menu_item_log">Show log file</string>
 
         <string name="alertPermissions">Please enable App permissions under settings (Settings \u279d Apps \u279d EgiGeoZone \u279d Permissions). After that start again.
         \n\n

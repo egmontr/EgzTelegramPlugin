@@ -129,6 +129,7 @@ public class TgmBroadcastReceiverPlugin extends BroadcastReceiver {
         ht.put(mPrefs.getString(PreferenceKeys.Z4, ""), mPrefs.getString(PreferenceKeys.C4, ""));
         ht.put(mPrefs.getString(PreferenceKeys.Z5, ""), mPrefs.getString(PreferenceKeys.C5, ""));
         ht.put(mPrefs.getString(PreferenceKeys.Z6, ""), mPrefs.getString(PreferenceKeys.C6, ""));
+        ht.put("TestZone", "set ${date} from TestZone");
 
         String zoneName = intent.getStringExtra("zone_name");
 

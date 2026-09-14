@@ -328,6 +328,19 @@ public class TgmPluginApplication extends Application implements Client.ResultHa
                 break;
             }
             case TdApi.AuthorizationStateWaitCode.CONSTRUCTOR: {
+                TdApi.AuthorizationStateWaitCode waitCode = (TdApi.AuthorizationStateWaitCode) TgmPluginApplication.authorizationState;
+
+                Log.d("TDLIB", "AuthorizationStateWaitCode");
+                Log.d("TDLIB", "codeInfo = " + waitCode.codeInfo);
+
+                Log.d("TDLIB", "code type = " + waitCode.codeInfo.type);
+
+                TdApi.AuthenticationCodeInfo info = waitCode.codeInfo;
+
+                Log.d("TDLIB", "phoneNumber = " + info.phoneNumber);
+                Log.d("TDLIB", "type       = " + info.type);
+                Log.d("TDLIB", "nextType   = " + info.nextType);
+                Log.d("TDLIB", "timeout    = " + info.timeout);
                 Intent intent = new Intent(this, Code.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
